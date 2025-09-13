@@ -1,0 +1,6 @@
+@RelyfClient_HostAddress = http://localhost:5010
+
+GET {{RelyfClient_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
