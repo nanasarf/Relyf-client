@@ -1,17 +1,20 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import NavBar from "./components/NavBar";
+import RequireAuth from "./components/RequireAuth";
 
 export default function App() {
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ py: 6, textAlign: "center" }}>
-        <Typography variant="h4" gutterBottom>
-          Relyf Client
-        </Typography>
-        <Typography color="text.secondary" gutterBottom>
-          Vite + React + TypeScript + Redux Toolkit + MUI
-        </Typography>
-        <Button variant="contained">Primary Button</Button>
-      </Box>
-    </Container>
+    <BrowserRouter>
+      <NavBar />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
