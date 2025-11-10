@@ -2,7 +2,7 @@ import { Alert, Collapse, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useRef, useState } from "react";
 
-import { API_BASE_URL } from "../services/baseQuery";
+import { API_BASE_URL } from "../services/baseApi";
 const API_BASE = API_BASE_URL;
 
 export default function OfflineBanner() {

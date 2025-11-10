@@ -4,14 +4,14 @@ import type { AdminLog, LogsSummary, TopModel } from '../types/admin'
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getRecentLogs: build.query<AdminLog[], void>({
-      query: () => ({ url: '/admin/logs/recent' }),
+      query: () => ({ url: '/api/admin/logs/recent' }),
       providesTags: ['AdminLogs'],
     }),
     getLogsSummary: build.query<LogsSummary, void>({
-      query: () => ({ url: '/admin/logs/summary' }),
+      query: () => ({ url: '/api/admin/logs/summary' }),
     }),
     getTopModels: build.query<TopModel[], void>({
-      query: () => ({ url: '/admin/logs/top-models' }),
+      query: () => ({ url: '/api/admin/logs/top-models' }),
     }),
   }),
 })
