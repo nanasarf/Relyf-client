@@ -18,6 +18,7 @@ import IdeaGenerate from "./pages/ideaGenerate";
 import Saved from "./pages/Saved";
 import Profile from "./pages/Profile";
 import IdeaDetail from "./pages/IdeaDetail";
+import ProjectsFeed from "./pages/ProjectsFeed";
 
 // Shell shown only for authed pages
 function ProtectedLayout() {
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/ideas" element={<IdeasList />} />
               <Route path="/ideas/generate" element={<IdeaGenerate />} />
+              <Route path="/feed" element={<ProjectsFeed />} />
               <Route path="/saved" element={<Saved />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/ideas/:id" element={<IdeaDetail />} />

@@ -13,12 +13,17 @@ import {
   Chip,
   IconButton,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
   useGenerateIdeaMutation,
   type GenerateIdeaResponse,
 } from "../services/ideasApi";
+import { useCreateProjectMutation } from "../services/projectsApi";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useToasts } from "../context/ToastsContext";
 
@@ -37,6 +42,11 @@ export default function IdeaGenerate() {
   const [generatedIdea, setGeneratedIdea] =
     useState<GenerateIdeaResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [projectTitle, setProjectTitle] = useState("");
+  const [projectDescription, setProjectDescription] = useState("");
+
+  const [createProject, { isLoading: isCreating }] = useCreateProjectMutation();
 
   // Typing animation for the generated text
   const [displayedText, setDisplayedText] = useState("");
@@ -77,6 +87,12 @@ export default function IdeaGenerate() {
       const result = await generateIdea({ promptText: prompt }).unwrap();
       setGeneratedIdea(result);
       showToast("Idea generated successfully!", "success");
+      // Prefill create-project dialog fields
+      setProjectTitle(String(result.title ?? "My Project"));
+      const preview = String(result.ideaText ?? "");
+      setProjectDescription(
+        preview.length > 600 ? preview.slice(0, 600) + "…" : preview
+      );
     } catch (err) {
       let msg = "Failed to generate idea";
       const e = err as unknown;
@@ -89,6 +105,23 @@ export default function IdeaGenerate() {
       }
       setError(msg);
       showToast(msg, "error");
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!generatedIdea) return;
+    try {
+      const payload = {
+        ideaId: generatedIdea.ideaId,
+        title: projectTitle.trim() || "My Project",
+        description: projectDescription.trim() || undefined,
+      };
+      await createProject(payload).unwrap();
+      showToast("Project published!", "success");
+      setCreateOpen(false);
+      navigate("/feed");
+    } catch {
+      showToast("Failed to publish project", "error");
     }
   };
 
@@ -198,8 +231,55 @@ export default function IdeaGenerate() {
             >
               View All Ideas
             </Button>
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => setCreateOpen(true)}
+            >
+              Publish as Project
+            </Button>
           </CardActions>
         </Card>
+      )}
+
+      {/* Create Project Dialog */}
+      {generatedIdea && (
+        <Dialog
+          open={createOpen && !!generatedIdea}
+          onClose={() => setCreateOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Publish Project</DialogTitle>
+          <DialogContent dividers>
+            <TextField
+              fullWidth
+              label="Title"
+              margin="normal"
+              value={projectTitle}
+              onChange={(e) => setProjectTitle(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Description"
+              margin="normal"
+              value={projectDescription}
+              onChange={(e) => setProjectDescription(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button
+              disabled={isCreating}
+              variant="contained"
+              onClick={handlePublish}
+            >
+              {isCreating ? <CircularProgress size={18} /> : "Publish"}
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
     </Container>
   );

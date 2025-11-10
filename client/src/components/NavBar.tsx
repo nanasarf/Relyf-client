@@ -20,10 +20,11 @@ export default function NavBar() {
   const location = useLocation();
   const tabMap: Record<string, number> = {
     "/": 0,
-    "/ideas": 1,
-    "/ideas/generate": 2,
-    "/saved": 3,
-    "/profile": 4,
+    "/feed": 1,
+    "/ideas": 2,
+    "/ideas/generate": 3,
+    "/saved": 4,
+    "/profile": 5,
   };
   const current =
     Object.keys(tabMap).find((p) => location.pathname.startsWith(p)) ?? "/";
@@ -48,6 +49,7 @@ export default function NavBar() {
             sx={{ flexGrow: 1 }}
           >
             <Tab label="Home" component={RouterLink} to="/" />
+            <Tab label="Feed" component={RouterLink} to="/feed" />
             <Tab label="Ideas" component={RouterLink} to="/ideas" />
             <Tab label="Generate" component={RouterLink} to="/ideas/generate" />
             <Tab label="Saved" component={RouterLink} to="/saved" />

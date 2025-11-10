@@ -6,7 +6,7 @@ export const demoApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getWeather: build.query<Weather[], void>({
       query: () => ({ url: '/weatherforecast' }),
-      providesTags: ['Demo'],
+      providesTags: ['Tag'],
     }),
   }),
 })

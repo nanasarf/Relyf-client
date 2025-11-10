@@ -2,8 +2,8 @@ import { fetchBaseQuery, type BaseQueryFn, type FetchArgs, type FetchBaseQueryEr
 
 // Prefer explicit env value; otherwise attempt a small ordered fallback list (supports VS https profile & direct run)
 const fallbackApiHosts = [
+  "http://localhost:5157",  // direct dotnet run http profile (preferred for dev)
   "https://localhost:7280", // VS https profile
-  "http://localhost:5157",  // direct dotnet run http profile
 ];
 const baseUrl = import.meta.env.VITE_API_BASE_URL || (() => {
   for (const h of fallbackApiHosts) {

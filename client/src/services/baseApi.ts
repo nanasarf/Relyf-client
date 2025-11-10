@@ -16,7 +16,7 @@ const wrappedBaseQuery: typeof baseQueryWithAuth = async (args, api, extra) => {
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: wrappedBaseQuery,
-  tagTypes: ['AdminLogs', 'Idea', 'Ideas', 'Top', 'Stats', 'ReactionCount', 'Save', 'SaveCount', 'Tag', 'Image', 'Feedback', 'DropoffSite'],
+  tagTypes: ['AdminLogs', 'Idea', 'Ideas', 'Top', 'Stats', 'ReactionCount', 'Save', 'SaveCount', 'Tag', 'Image', 'Feedback', 'DropoffSite', 'Project', 'Projects'],
   endpoints: () => ({}),
 })
 
