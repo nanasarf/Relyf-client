@@ -5,13 +5,16 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import theme from "./theme";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
+import { ToastsProvider } from "./components/Toasts";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <App />
+        <ToastsProvider>
+          <App />
+        </ToastsProvider>
       </ThemeProvider>
     </Provider>
   </React.StrictMode>

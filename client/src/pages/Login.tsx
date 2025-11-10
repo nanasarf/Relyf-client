@@ -19,16 +19,91 @@ export default function Login() {
   const [login, { isLoading, error }] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [serverMsg, setServerMsg] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const res = await login({ email, password }).unwrap();
-      // res.user might be undefined -> coerce to null for our slice type
-      dispatch(setCredentials({ token: res.token, user: res.user ?? null }));
+      // backend may return different casing/names (Token vs token, userId/email)
+      const safeRes = res as unknown;
+      let token: string | null = null;
+      let user = null as { id: string; email: string } | null;
+      if (safeRes && typeof safeRes === "object") {
+        const obj = safeRes as Record<string, unknown>;
+        const t1 = obj["token"];
+        const t2 = obj["Token"];
+        const t3 = obj["accessToken"];
+        if (typeof t1 === "string") token = t1;
+        else if (typeof t2 === "string") token = t2;
+        else if (typeof t3 === "string") token = t3;
+
+        if (
+          "user" in obj &&
+          typeof obj["user"] === "object" &&
+          obj["user"] !== null
+        ) {
+          const u = obj["user"] as Record<string, unknown>;
+          user = {
+            id: u["id"] ? String(u["id"]) : "",
+            email: typeof u["email"] === "string" ? u["email"] : "",
+          };
+        } else if ("userId" in obj) {
+          user = {
+            id: String(obj["userId"]),
+            email: typeof obj["email"] === "string" ? obj["email"] : "",
+          };
+        }
+      }
+
+      if (!token) {
+        // If server returned success but no token, surface message
+        setServerMsg("Login succeeded but no token returned from server.");
+        console.warn("login response missing token", res);
+        return;
+      }
+
+      // Ensure token is persisted (authSlice also writes it, but be defensive)
+      localStorage.setItem("relyf_token", token);
+      dispatch(setCredentials({ token, user }));
       navigate("/");
     } catch (err) {
       console.error(err);
+      // Try to show a clearer message when available using safe guards
+      let msg = String(err);
+      const e = err as unknown;
+      if (e && typeof e === "object") {
+        const obj = e as Record<string, unknown>;
+
+        // Check for "Failed to fetch" - backend is not running
+        if (obj.message && typeof obj.message === "string") {
+          if (obj.message.includes("Failed to fetch")) {
+            msg =
+              "Cannot connect to backend server. Make sure the API is running on http://localhost:5157";
+          } else {
+            msg = obj.message;
+          }
+        } else if (obj.error && typeof obj.error === "string") msg = obj.error;
+        else if (
+          obj.data &&
+          typeof obj.data === "object" &&
+          obj.data !== null
+        ) {
+          const d = obj.data as Record<string, unknown>;
+          if (d.message && typeof d.message === "string") msg = d.message;
+        }
+      }
+
+      // Check for specific fetch errors
+      if (
+        msg.includes("TypeError: Failed to fetch") ||
+        msg.includes("Failed to fetch")
+      ) {
+        msg =
+          "❌ Backend server is not running. Please start the API on http://localhost:5157";
+      }
+
+      setServerMsg(msg);
     }
   };
 
@@ -57,7 +132,12 @@ export default function Login() {
             <Button type="submit" variant="contained" disabled={isLoading}>
               Login
             </Button>
-            {error ? <Alert severity="error">Login failed</Alert> : null}
+            {error ? (
+              <Alert severity="error">{serverMsg ?? "Login failed"}</Alert>
+            ) : null}
+            {serverMsg && !error ? (
+              <Alert severity="info">{serverMsg}</Alert>
+            ) : null}
           </Stack>
         </form>
       </Paper>

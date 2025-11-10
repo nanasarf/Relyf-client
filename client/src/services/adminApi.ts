@@ -1,18 +1,23 @@
 import { baseApi } from './baseApi'
-
-// Minimal shape based on typical log records.
-// Tweak fields once you see the real response.
-export type AdminLog = {
-  message?: string;
-  timestamp?: string;        // or 'createdAt' if that's what your API returns
-} & Record<string, unknown>;
+import type { AdminLog, LogsSummary, TopModel } from '../types/admin'
 
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getRecentLogs: build.query<AdminLog[], void>({
-      query: () => ({ url: '/admin/logs/recent' }), // base '/api' added by baseApi
+      query: () => ({ url: '/admin/logs/recent' }),
+      providesTags: ['AdminLogs'],
+    }),
+    getLogsSummary: build.query<LogsSummary, void>({
+      query: () => ({ url: '/admin/logs/summary' }),
+    }),
+    getTopModels: build.query<TopModel[], void>({
+      query: () => ({ url: '/admin/logs/top-models' }),
     }),
   }),
-});
+})
 
-export const { useGetRecentLogsQuery } = adminApi;
+export const {
+  useGetRecentLogsQuery,
+  useGetLogsSummaryQuery,
+  useGetTopModelsQuery,
+} = adminApi
