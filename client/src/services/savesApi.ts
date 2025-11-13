@@ -10,10 +10,30 @@ export const savesApi = baseApi.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: (_, __, arg) => [
-        { type: 'Idea', id: arg.ideaId },
-        { type: 'SaveCount', id: arg.ideaId },
-      ],
+  invalidatesTags: (_, __, arg) => {
+        // Attempt to invalidate the actual current user's profile cache so saveCount refreshes
+        let currentUserId: number | string | undefined
+        try {
+          const raw = localStorage.getItem('relyf_user')
+          if (raw) {
+            const parsed = JSON.parse(raw)
+            currentUserId = parsed?.id ?? parsed?.userId
+          }
+        } catch {
+          // ignore JSON/localStorage parsing errors
+        }
+        const tags: { type: 'Idea' | 'SaveCount' | 'Save' | 'User'; id: string | number }[] = [
+          { type: 'Idea', id: arg.ideaId },
+          { type: 'SaveCount', id: arg.ideaId },
+          // Invalidate generic saved-list and also a user-scoped list for safety
+          { type: 'Save', id: 'USER_LIST' },
+        ]
+        if (currentUserId !== undefined && currentUserId !== null) {
+          tags.push({ type: 'User', id: currentUserId })
+          tags.push({ type: 'Save', id: `USER_LIST_${currentUserId}` })
+        }
+        return tags
+      },
     }),
 
     // DELETE /api/Saves/{ideaId}
@@ -22,10 +42,28 @@ export const savesApi = baseApi.injectEndpoints({
         url: `/api/Saves/${ideaId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (_, __, ideaId) => [
-        { type: 'Idea', id: ideaId },
-        { type: 'SaveCount', id: ideaId },
-      ],
+  invalidatesTags: (_, __, ideaId) => {
+        let currentUserId: number | string | undefined
+        try {
+          const raw = localStorage.getItem('relyf_user')
+          if (raw) {
+            const parsed = JSON.parse(raw)
+            currentUserId = parsed?.id ?? parsed?.userId
+          }
+        } catch {
+          // ignore JSON/localStorage parsing errors
+        }
+        const tags: { type: 'Idea' | 'SaveCount' | 'Save' | 'User'; id: string | number }[] = [
+          { type: 'Idea', id: ideaId },
+          { type: 'SaveCount', id: ideaId },
+          { type: 'Save', id: 'USER_LIST' },
+        ]
+        if (currentUserId !== undefined && currentUserId !== null) {
+          tags.push({ type: 'User', id: currentUserId })
+          tags.push({ type: 'Save', id: `USER_LIST_${currentUserId}` })
+        }
+        return tags
+      },
     }),
 
     // GET /api/Saves/user/{userId}
@@ -34,7 +72,11 @@ export const savesApi = baseApi.injectEndpoints({
         url: `/api/Saves/user/${userId}`,
         method: 'GET',
       }),
-      providesTags: [{ type: 'Save', id: 'USER_LIST' }],
+      // Provide both a generic tag and a user-scoped tag so we can target invalidation precisely
+      providesTags: (_, __, userId) => [
+        { type: 'Save' as const, id: 'USER_LIST' },
+        { type: 'Save' as const, id: `USER_LIST_${userId}` },
+      ],
     }),
   }),
 })

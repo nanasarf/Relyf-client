@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kUWWEiPpGak=",
+  "dgSpecHash": "ONVEc6sGV80=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\RelyfClient\\RelyfClient.csproj",
+  "projectFilePath": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\Relyf-client\\RelyfClient.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ennxk\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
     "C:\\Users\\ennxk\\.nuget\\packages\\microsoft.openapi\\1.6.14\\microsoft.openapi.1.6.14.nupkg.sha512",

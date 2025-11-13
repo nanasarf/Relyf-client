@@ -1,15 +1,22 @@
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { ProjectCard, ProjectCardSkeleton } from "../components/ProjectCard";
-import { useGetMyProjectsQuery } from "../services/projectsApi";
+import { useGetExploreProjectsQuery } from "../services/projectsApi";
 
 // Placeholder feed until backend provides a list endpoint for projects
 export default function ProjectsFeed() {
   const PAGE_SIZE = 12;
   const [skip, setSkip] = useState(0);
-  const { data, isLoading, isFetching, refetch } = useGetMyProjectsQuery({
+  // try to exclude the current user's projects so Explore shows others' work
+  const rawUser = localStorage.getItem("relyf_user");
+  const currentUserId = rawUser
+    ? (JSON.parse(rawUser).userId as number)
+    : undefined;
+
+  const { data, isLoading, isFetching, refetch } = useGetExploreProjectsQuery({
     skip,
     take: PAGE_SIZE,
+    excludeUserId: currentUserId,
   });
   const projects = data?.results ?? [];
   const total = data?.total ?? 0;
@@ -42,7 +49,7 @@ export default function ProjectsFeed() {
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h5" sx={{ mb: 2 }}>
-        Community Projects
+        Explore
       </Typography>
       <Box
         sx={{

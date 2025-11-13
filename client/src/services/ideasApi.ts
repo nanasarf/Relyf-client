@@ -1,8 +1,7 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQueryWithAuth } from "./baseQuery";
+import { baseApi } from "./baseApi";
 import type { Idea } from "../types/ideas";
 
-/** --- Types: adjust to your DTOs if needed --- */
+// Unified types (keep close to server DTOs)
 export type IdeaStats = {
   id: number | string;
   views?: number;
@@ -27,6 +26,7 @@ export type GenerateIdeaResponse = {
   userId: number;
 };
 
+// Paged shape returned by API (/api/ideas/search)
 export type Paged<T> = {
   results: T[];
   total: number;
@@ -35,15 +35,15 @@ export type Paged<T> = {
 };
 
 type GetIdeasParams = { skip?: number; take?: number };
+type GetAiIdeasParams = { item: string; skip?: number; take?: number };
+type GetAiIdeasResponse = { ideas: string };
 
-export const ideasApi = createApi({
-  reducerPath: "ideasApi",
-  baseQuery: baseQueryWithAuth,
-  tagTypes: ["Idea", "Ideas", "Stats", "Top"],
+// Inject endpoints into the existing baseApi so the slice reducer & middleware are already registered.
+export const ideasApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    /** GET /api/ideas/search (without filters = list all) */
+    // List ideas (search without filters)
     getIdeas: builder.query<Paged<Idea>, GetIdeasParams | void>({
-      query: (params?: GetIdeasParams) => ({
+      query: (params) => ({
         url: "/api/ideas/search",
         method: "GET",
         params: {
@@ -60,19 +60,32 @@ export const ideasApi = createApi({
       },
     }),
 
-    /** GET /api/Ideas/{id} */
+    // Get AI-generated ideas for an item
+    getAiIdeas: builder.query<GetAiIdeasResponse, GetAiIdeasParams>({
+      query: ({ item, skip = 0, take = 12 }) => ({
+        url: "/api/Ideas",
+        method: "GET",
+        params: { item, skip, take },
+      }),
+      providesTags: [{ type: "Ideas", id: "AI" }],
+    }),
+
+    // Single idea by id
     getIdeaById: builder.query<Idea, number | string>({
       query: (id) => ({ url: `/api/Ideas/${id}`, method: "GET" }),
       providesTags: (_, __, id) => [{ type: "Idea", id }],
     }),
 
-    /** POST /api/Ideas/generate */
+    // Generate idea
     generateIdea: builder.mutation<GenerateIdeaResponse, GenerateIdeaRequest>({
       query: (body) => ({ url: "/api/Ideas/generate", method: "POST", body }),
-      invalidatesTags: [{ type: "Ideas", id: "LIST" }, { type: "Top", id: "LIST" }],
+      invalidatesTags: [
+        { type: "Ideas", id: "LIST" },
+        { type: "Top", id: "LIST" },
+      ],
     }),
 
-    /** GET /api/ideas/search?q={query} */
+    // Filtered search
     searchIdeas: builder.query<Paged<Idea>, { query: string; skip?: number; take?: number }>({
       query: ({ query, skip = 0, take = 20 }) => ({
         url: "/api/ideas/search",
@@ -82,22 +95,24 @@ export const ideasApi = createApi({
       providesTags: [{ type: "Ideas", id: "SEARCH" }],
     }),
 
-    /** GET /api/ideas/top */
+    // Top ideas
     getTopIdeas: builder.query<Idea[], void>({
       query: () => ({ url: "/api/ideas/top", method: "GET" }),
       providesTags: [{ type: "Top", id: "LIST" }],
     }),
 
-    /** GET /api/ideas/{id}/stats */
+    // Stats for an idea
     getIdeaStats: builder.query<IdeaStats, number | string>({
       query: (id) => ({ url: `/api/ideas/${id}/stats`, method: "GET" }),
       providesTags: (_, __, id) => [{ type: "Stats", id }],
     }),
   }),
+  overrideExisting: true, // ensure replacement if hot-reloaded
 });
 
 export const {
   useGetIdeasQuery,
+  useGetAiIdeasQuery,
   useGetIdeaByIdQuery,
   useGenerateIdeaMutation,
   useSearchIdeasQuery,

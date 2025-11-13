@@ -1,3 +1,4 @@
+// src/pages/UserProfile.tsx
 import {
   Avatar,
   Box,
@@ -11,17 +12,22 @@ import {
   Tab,
 } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import EditIcon from "@mui/icons-material/Edit";
+import { useParams, useNavigate } from "react-router-dom";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   useGetUserProfileQuery,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
   useGetUserFollowersQuery,
   useGetUserFollowingQuery,
 } from "../services/usersApi";
-import { useGetMyProjectsQuery } from "../services/projectsApi";
+import { useGetUserProjectsQuery } from "../services/projectsApi";
 import { ProjectCard } from "../components/ProjectCard";
 
-export default function Profile() {
+export default function UserProfile() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
 
@@ -30,17 +36,34 @@ export default function Profile() {
     : null;
 
   const { data: user, isLoading: userLoading } = useGetUserProfileQuery(
-    currentUserId || "",
-    { skip: !currentUserId }
+    id || "",
+    { skip: !id }
   );
-  const { data: followers } = useGetUserFollowersQuery(currentUserId || "", {
-    skip: !currentUserId,
-  });
-  const { data: following } = useGetUserFollowingQuery(currentUserId || "", {
-    skip: !currentUserId,
-  });
-  const { data: myProjects, isLoading: projectsLoading } =
-    useGetMyProjectsQuery();
+  const { data: followers } = useGetUserFollowersQuery(id || "", { skip: !id });
+  const { data: following } = useGetUserFollowingQuery(id || "", { skip: !id });
+  const { data: userProjectsData, isLoading: projectsLoading } =
+    useGetUserProjectsQuery(
+      { userId: id || "", skip: 0, take: 20 },
+      { skip: !id }
+    );
+  const userProjects = userProjectsData?.results || [];
+
+  const [followUser, { isLoading: followLoading }] = useFollowUserMutation();
+  const [unfollowUser, { isLoading: unfollowLoading }] =
+    useUnfollowUserMutation();
+
+  const handleFollowToggle = async () => {
+    if (!id) return;
+    try {
+      if (user?.isFollowing) {
+        await unfollowUser(id).unwrap();
+      } else {
+        await followUser({ followingId: id }).unwrap();
+      }
+    } catch (error) {
+      console.error("Failed to toggle follow:", error);
+    }
+  };
 
   if (userLoading) {
     return (
@@ -67,14 +90,25 @@ export default function Profile() {
           justifyContent: "center",
         }}
       >
-        <Typography variant="h5">Unable to load profile</Typography>
+        <Typography variant="h5">User not found</Typography>
       </Box>
     );
   }
 
+  const isOwnProfile = currentUserId && String(currentUserId) === String(id);
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#FAFAFA" }}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Back Button */}
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{ mb: 2 }}
+        >
+          Back
+        </Button>
+
         {/* Profile Header Card */}
         <Card
           sx={{
@@ -119,15 +153,6 @@ export default function Profile() {
                     <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
                       {user.displayName || user.userName || "User"}
                     </Typography>
-                    {user.userName && (
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 2 }}
-                      >
-                        @{user.userName}
-                      </Typography>
-                    )}
                     {user.bio && (
                       <Typography
                         variant="body1"
@@ -145,28 +170,38 @@ export default function Profile() {
                       {user.countryCode && `🌍 ${user.countryCode}`}
                     </Typography>
                   </Box>
-                  <Button
-                    variant="contained"
-                    startIcon={<EditIcon />}
-                    onClick={() => {
-                      // TODO: Implement edit profile dialog
-                      alert("Edit profile coming soon!");
-                    }}
-                    sx={{
-                      borderRadius: 3,
-                      px: 3,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      background:
-                        "linear-gradient(135deg, #43A047 0%, #66BB6A 100%)",
-                      boxShadow: "0 4px 12px rgba(67, 160, 71, 0.3)",
-                      "&:hover": {
-                        boxShadow: "0 6px 16px rgba(67, 160, 71, 0.4)",
-                      },
-                    }}
-                  >
-                    Edit Profile
-                  </Button>
+                  {!isOwnProfile && (
+                    <Button
+                      variant={user.isFollowing ? "outlined" : "contained"}
+                      startIcon={
+                        user.isFollowing ? (
+                          <PersonRemoveIcon />
+                        ) : (
+                          <PersonAddIcon />
+                        )
+                      }
+                      onClick={handleFollowToggle}
+                      disabled={followLoading || unfollowLoading}
+                      sx={{
+                        borderRadius: 3,
+                        px: 3,
+                        textTransform: "none",
+                        fontWeight: 600,
+                        ...(user.isFollowing
+                          ? {}
+                          : {
+                              background:
+                                "linear-gradient(135deg, #43A047 0%, #66BB6A 100%)",
+                              boxShadow: "0 4px 12px rgba(67, 160, 71, 0.3)",
+                              "&:hover": {
+                                boxShadow: "0 6px 16px rgba(67, 160, 71, 0.4)",
+                              },
+                            }),
+                      }}
+                    >
+                      {user.isFollowing ? "Unfollow" : "Follow"}
+                    </Button>
+                  )}
                 </Stack>
               </Box>
             </Stack>
@@ -182,7 +217,7 @@ export default function Profile() {
                 borderColor: "divider",
               }}
             >
-              <Box sx={{ cursor: "pointer" }} onClick={() => setActiveTab(1)}>
+              <Box>
                 <Typography variant="h5" fontWeight={700} color="primary.main">
                   {user.followerCount || 0}
                 </Typography>
@@ -190,7 +225,7 @@ export default function Profile() {
                   Followers
                 </Typography>
               </Box>
-              <Box sx={{ cursor: "pointer" }} onClick={() => setActiveTab(2)}>
+              <Box>
                 <Typography variant="h5" fontWeight={700} color="primary.main">
                   {user.followingCount || 0}
                 </Typography>
@@ -198,7 +233,7 @@ export default function Profile() {
                   Following
                 </Typography>
               </Box>
-              <Box sx={{ cursor: "pointer" }} onClick={() => setActiveTab(0)}>
+              <Box>
                 <Typography variant="h5" fontWeight={700} color="primary.main">
                   {user.projectCount || 0}
                 </Typography>
@@ -222,7 +257,7 @@ export default function Profile() {
               boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
             }}
           >
-            <Tab label={`Projects (${myProjects?.results?.length || 0})`} />
+            <Tab label={`Projects (${userProjectsData?.total || 0})`} />
             <Tab label={`Followers (${followers?.length || 0})`} />
             <Tab label={`Following (${following?.length || 0})`} />
           </Tabs>
@@ -244,9 +279,9 @@ export default function Profile() {
                   Loading projects...
                 </Typography>
               </Card>
-            ) : myProjects?.results && myProjects.results.length > 0 ? (
+            ) : userProjects && userProjects.length > 0 ? (
               <Stack spacing={3}>
-                {myProjects.results.map((project) => (
+                {userProjects.map((project) => (
                   <ProjectCard key={project.projectId} project={project} />
                 ))}
               </Stack>
@@ -266,7 +301,7 @@ export default function Profile() {
                   color="text.disabled"
                   sx={{ mt: 1 }}
                 >
-                  Create your first project from the Ideas page
+                  This user hasn't posted any projects
                 </Typography>
               </Card>
             )}

@@ -8,11 +8,13 @@ export type ProjectStep = {
 export type Project = {
   projectId: number
   ideaId?: number | null
+  aiIdeaId?: number | null
   userId: number
   title: string
   description?: string | null
   status: string
   steps?: ProjectStep[]
+  createdAtUtc: string
   // Social metrics (may be hydrated later)
   likeCount?: number
   commentCount?: number
@@ -21,23 +23,35 @@ export type Project = {
   isSaved?: boolean
   imageUrl?: string
   tags?: string[]
+  // User info for feed display (populated by feed query)
+  _userInfo?: {
+    userName?: string
+    displayName?: string
+    avatarUrl?: string
+  }
 }
 
 export type CreateProjectRequest = {
+  userId: number
   ideaId?: number | null
+  aiIdeaId?: number | null
   title: string
   description?: string | null
-  // steps optional in initial create; can be upserted later
-  steps?: string[]
+}
+
+export type UpsertStepsRequest = {
+  steps: string[]
 }
 
 export type CreateProjectResponse = {
   projectId: number
   ideaId?: number | null
+  aiIdeaId?: number | null
   userId: number
   title: string
   description?: string | null
   status: string
+  imageUrl?: string | null  // Added to match backend response
 }
 
 export type Paged<T> = {

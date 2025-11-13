@@ -453,11 +453,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\RelyfClient\\RelyfClient.csproj",
+      "projectUniqueName": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\Relyf-client\\RelyfClient.csproj",
       "projectName": "RelyfClient",
-      "projectPath": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\RelyfClient\\RelyfClient.csproj",
+      "projectPath": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\Relyf-client\\RelyfClient.csproj",
       "packagesPath": "C:\\Users\\ennxk\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\RelyfClient\\obj\\",
+      "outputPath": "C:\\Users\\ennxk\\COMSCI\\SofwareDev\\Relyf-client\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -521,7 +521,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

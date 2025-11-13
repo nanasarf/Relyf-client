@@ -1,18 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// Reads .env value; fallback HTTP (dev certificates may not be trusted by browser yet)
+const apiBase = process.env.VITE_API_BASE_URL || 'http://localhost:5100'
+
 export default defineConfig({
   plugins: [react()],
+  appType: 'spa', // ensures BrowserRouter history fallback
   server: {
+    port: 5173,
     proxy: {
       '/api': {
-        target: 'https://localhost:7280', // <-- your API
+        target: apiBase,
         changeOrigin: true,
-        secure: false,
+        secure: false, // allow self-signed https locally
       },
-      // keep if you’ll call non-/api endpoints too (optional)
       '/swagger': {
-        target: 'https://localhost:7280',
+        target: apiBase,
         changeOrigin: true,
         secure: false,
       },

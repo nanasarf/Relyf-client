@@ -2,8 +2,7 @@ import { Alert, Collapse, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useRef, useState } from "react";
 
-import { API_BASE_URL } from "../services/baseApi";
-const API_BASE = API_BASE_URL;
+import { apiUrl, API_BASE } from "../lib/apiBase";
 
 export default function OfflineBanner() {
   const [open, setOpen] = useState(false);
@@ -12,8 +11,10 @@ export default function OfflineBanner() {
   useEffect(() => {
     const check = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/Health`, {
+        const res = await fetch(apiUrl("/api/Health"), {
           cache: "no-store",
+          // ensure cookies are sent if backend uses cookie auth; kept consistent with RTK baseQuery
+          credentials: "include",
         });
         setOpen(!res.ok);
       } catch {

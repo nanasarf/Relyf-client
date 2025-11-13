@@ -17,10 +17,15 @@ export interface CreateReactionRequest {
 }
 
 export interface Save {
-  id: number | string;
+  id?: number | string;
   ideaId: number | string;
-  userId: number | string;
+  userId?: number | string;
+  title?: string;
+  preview?: string;
+  imageUrl?: string;
+  tags?: string[];
   createdAt?: string;
+  savedAtUtc?: string;
 }
 
 export interface SaveCount {
