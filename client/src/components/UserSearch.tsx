@@ -46,18 +46,6 @@ export default function UserSearch() {
     return () => clearTimeout(timer);
   }, [searchQuery, triggerSearch]);
 
-  // Debug: Log search results
-  useEffect(() => {
-    if (data) {
-      console.log("Search results:", data.results);
-      data.results.forEach((user) => {
-        console.log(
-          `User ${user.userName}: isFollowing=${user.isFollowing}, isFollowedBy=${user.isFollowedBy}`
-        );
-      });
-    }
-  }, [data]);
-
   const handleFollow = async (userId: number | string) => {
     try {
       await followUser({ followingId: userId }).unwrap();
@@ -66,7 +54,6 @@ export default function UserSearch() {
         triggerSearch({ query: searchQuery, skip: 0, take: 20 });
       }
     } catch (error) {
-      console.error("Failed to follow user:", error);
       // Handle 409 Conflict - already following
       if (
         error &&
@@ -90,7 +77,6 @@ export default function UserSearch() {
         triggerSearch({ query: searchQuery, skip: 0, take: 20 });
       }
     } catch (error) {
-      console.error("Failed to unfollow user:", error);
       // Handle 404 - not following
       if (
         error &&

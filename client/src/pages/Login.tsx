@@ -49,7 +49,7 @@ export default function Login() {
 
   const handleTabChange = (
     _: React.SyntheticEvent,
-    newValue: "login" | "register"
+    newValue: "login" | "register",
   ) => {
     setMode(newValue);
     setServerMsg(null);
@@ -82,7 +82,7 @@ export default function Login() {
     // Only allow alphanumeric and underscores
     if (!/^[a-zA-Z0-9_]+$/.test(value)) {
       setUsernameError(
-        "Username can only contain letters, numbers, and underscores"
+        "Username can only contain letters, numbers, and underscores",
       );
       return;
     }
@@ -97,20 +97,14 @@ export default function Login() {
         setUsernameError(result.message || "Username is already taken");
         setUsernameValid(false);
       }
-    } catch (error) {
-      console.error("Error checking username:", error);
-      // Log more details about the error
-      if (error && typeof error === "object") {
-        console.error("Error details:", JSON.stringify(error, null, 2));
-      }
+    } catch {
       setUsernameError(
-        "Could not verify username availability. Please try again."
+        "Could not verify username availability. Please try again.",
       );
     }
   };
 
   const handleAuthResponse = (res: unknown) => {
-    console.log("Auth response received:", res);
     const safeRes = res as unknown;
     let token: string | null = null;
     let user = null as { id: string; email: string } | null;
@@ -141,27 +135,21 @@ export default function Login() {
       }
     }
 
-    console.log("Extracted token:", token);
-    console.log("Extracted user:", user);
-
     if (!token) {
       setServerMsg(
         `${
           mode === "login" ? "Login" : "Registration"
-        } succeeded but no token returned from server.`
+        } succeeded but no token returned from server.`,
       );
-      console.warn("auth response missing token", res);
       return;
     }
 
     localStorage.setItem("relyf_token", token);
     dispatch(setCredentials({ token, user }));
-    console.log("Navigating to home page...");
     navigate("/");
   };
 
   const handleError = (err: unknown) => {
-    console.error("Authentication error:", err);
     let msg = "An error occurred. Please try again.";
     const e = err as unknown;
 
@@ -173,25 +161,11 @@ export default function Login() {
         const status = obj.status;
         const data = obj.data;
 
-        console.log("Error status:", status);
-        console.log("Error data:", data);
-        console.log("Error data type:", typeof data);
-        console.log(
-          "Error data keys:",
-          data && typeof data === "object" ? Object.keys(data) : "N/A"
-        );
-        console.log("Error data stringified:", JSON.stringify(data, null, 2));
-
         // Handle different status codes
         if (status === 400) {
           // Bad Request - validation errors
           if (typeof data === "object" && data !== null) {
             const errorData = data as Record<string, unknown>;
-
-            console.log("Checking errorData fields...");
-            console.log("errorData.message:", errorData.message);
-            console.log("errorData.title:", errorData.title);
-            console.log("errorData.errors:", errorData.errors);
 
             // Check for ASP.NET Core validation errors format
             if (
@@ -494,8 +468,8 @@ export default function Login() {
               {isLoading
                 ? "Please wait..."
                 : mode === "login"
-                ? "Sign In"
-                : "Create Account"}
+                  ? "Sign In"
+                  : "Create Account"}
             </Button>
             {error ? (
               <Alert severity="error">

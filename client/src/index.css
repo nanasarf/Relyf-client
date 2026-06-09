@@ -75,3 +75,91 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* 🔥 Neon Glow */
+.neon {
+  box-shadow: 0 0 12px rgba(0, 150, 255, 0.7),
+              0 0 30px rgba(0, 150, 255, 0.4);
+}
+
+/* 🔥 Neon Border */
+.neon-border {
+  border: 1px solid rgba(0, 150, 255, 0.6);
+  box-shadow: 0 0 12px rgba(0,150,255,0.5);
+}
+
+/* 🔵 Tab Active Glow */
+.tab-active {
+  color: #fff;
+  background: rgba(0, 150, 255, 0.25);
+  border: 1px solid rgba(0,150,255,0.5);
+  box-shadow: 0 0 10px rgba(0,150,255,0.6);
+  backdrop-filter: blur(10px);
+}
+
+/* ⚽ Position Badge Neon */
+.pos-badge {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(0,150,255,0.3);
+  border: 1px solid rgba(0,150,255,0.6);
+  box-shadow: 0 0 8px rgba(0,150,255,0.5);
+}
+
+/* 🟩 Captain “C” Badge Glow */
+.captain-badge {
+  background: rgba(0,255,140,0.4);
+  border: 1px solid rgba(0,255,140,0.7);
+  box-shadow: 0 0 10px rgba(0,255,140,0.7);
+  padding: 4px 6px;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+/* ⚡ Hover Pulse */
+.hover-pulse:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(0,150,255,0.7);
+}
+
+/* 🔄 Smooth transitions */
+.fast {
+  transition: all 0.18s ease;
+}
+
+/* 🟦 Neon BG Overlay */
+.neon-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(0,150,255,0.35),
+    rgba(0,80,255,0.55)
+  );
+  box-shadow: inset 0 0 25px rgba(0,150,255,0.4);
+}
+
+/* 🔵 Player Image Glow Ring */
+.player-ring {
+  border-radius: 50%;
+  border: 3px solid rgba(0,150,255,0.8);
+  box-shadow:
+    0 0 15px rgba(0,150,255,0.9),
+    inset 0 0 10px rgba(0,150,255,0.4);
+}
+
+/* 📦 Bottom Floating Bar */
+.floating-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,30,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,150,255,0.5);
+  box-shadow: 0 0 22px rgba(0,150,255,0.6);
+  padding: 16px 22px;
+  border-radius: 18px;
+  z-index: 50;
+}

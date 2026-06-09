@@ -218,13 +218,17 @@ export default function IdeasList() {
               py: 1.5,
               borderRadius: 2,
               background: "linear-gradient(135deg, #43A047 0%, #66BB6A 100%)",
+              color: "white",
               boxShadow: "0 4px 12px rgba(67, 160, 71, 0.3)",
+              fontWeight: 700,
+              fontSize: "1.1rem",
               "&:hover": {
                 background: "linear-gradient(135deg, #388E3C 0%, #43A047 100%)",
                 boxShadow: "0 6px 16px rgba(67, 160, 71, 0.4)",
               },
               "&:disabled": {
                 background: "rgba(0, 0, 0, 0.12)",
+                color: "rgba(0,0,0,0.3)",
               },
             }}
           >
@@ -241,9 +245,15 @@ export default function IdeasList() {
       )}
       {isError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {aiIdeasQuery.error?.status === 400
+          {aiIdeasQuery.error &&
+          typeof aiIdeasQuery.error === "object" &&
+          "status" in aiIdeasQuery.error &&
+          aiIdeasQuery.error.status === 400
             ? "Please enter a more descriptive item (at least 2 characters)."
-            : aiIdeasQuery.error?.status === 500
+            : aiIdeasQuery.error &&
+              typeof aiIdeasQuery.error === "object" &&
+              "status" in aiIdeasQuery.error &&
+              aiIdeasQuery.error.status === 500
             ? "Server error. Please try again later or use a different item."
             : "Failed to generate ideas. Please try again."}
         </Alert>

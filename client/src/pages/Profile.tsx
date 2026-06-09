@@ -1,4 +1,10 @@
 import {
+  useGetUserProfileQuery,
+  useGetUserFollowersQuery,
+  useGetUserFollowingQuery,
+  useUpdateUserProfileMutation,
+} from "../services/usersApi";
+import {
   Avatar,
   Box,
   Container,
@@ -9,21 +15,28 @@ import {
   CircularProgress,
   Tabs,
   Tab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
-import {
-  useGetUserProfileQuery,
-  useGetUserFollowersQuery,
-  useGetUserFollowingQuery,
-} from "../services/usersApi";
+
 import { useGetMyProjectsQuery } from "../services/projectsApi";
 import { ProjectCard } from "../components/ProjectCard";
 
 export default function Profile() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
+  // Edit Profile modal state
+  const [editOpen, setEditOpen] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
+  const [updateProfile, { isLoading: isUpdating }] =
+    useUpdateUserProfileMutation();
 
   const currentUserId = localStorage.getItem("relyf_user")
     ? JSON.parse(localStorage.getItem("relyf_user")!).id
@@ -149,8 +162,9 @@ export default function Profile() {
                     variant="contained"
                     startIcon={<EditIcon />}
                     onClick={() => {
-                      // TODO: Implement edit profile dialog
-                      alert("Edit profile coming soon!");
+                      setDisplayName(user.displayName || "");
+                      setBio(user.bio || "");
+                      setEditOpen(true);
                     }}
                     sx={{
                       borderRadius: 3,
@@ -167,6 +181,52 @@ export default function Profile() {
                   >
                     Edit Profile
                   </Button>
+                  {/* Edit Profile Modal */}
+                  <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
+                    <DialogTitle>Edit Profile</DialogTitle>
+                    <DialogContent>
+                      <Stack spacing={2} sx={{ mt: 1 }}>
+                        <TextField
+                          label="Display Name"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label="Bio"
+                          value={bio}
+                          onChange={(e) => setBio(e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={2}
+                        />
+                      </Stack>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button
+                        onClick={() => setEditOpen(false)}
+                        disabled={isUpdating}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={async () => {
+                          await updateProfile({
+                            id: currentUserId,
+                            profile: {
+                              displayName,
+                              bio,
+                            },
+                          });
+                          setEditOpen(false);
+                        }}
+                        variant="contained"
+                        disabled={isUpdating}
+                      >
+                        Save
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
                 </Stack>
               </Box>
             </Stack>

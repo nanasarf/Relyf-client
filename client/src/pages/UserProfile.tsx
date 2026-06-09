@@ -37,14 +37,14 @@ export default function UserProfile() {
 
   const { data: user, isLoading: userLoading } = useGetUserProfileQuery(
     id || "",
-    { skip: !id }
+    { skip: !id },
   );
   const { data: followers } = useGetUserFollowersQuery(id || "", { skip: !id });
   const { data: following } = useGetUserFollowingQuery(id || "", { skip: !id });
   const { data: userProjectsData, isLoading: projectsLoading } =
     useGetUserProjectsQuery(
       { userId: id || "", skip: 0, take: 20 },
-      { skip: !id }
+      { skip: !id },
     );
   const userProjects = userProjectsData?.results || [];
 
@@ -60,9 +60,7 @@ export default function UserProfile() {
       } else {
         await followUser({ followingId: id }).unwrap();
       }
-    } catch (error) {
-      console.error("Failed to toggle follow:", error);
-    }
+    } catch {}
   };
 
   if (userLoading) {

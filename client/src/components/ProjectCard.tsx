@@ -82,16 +82,6 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
 
   const absoluteImageUrl = getImageUrl(project.imageUrl);
 
-  // Debug logging
-  if (project.imageUrl) {
-    console.log("🖼️ ProjectCard Image Debug:", {
-      projectId: project.projectId,
-      rawImageUrl: project.imageUrl,
-      absoluteImageUrl,
-      apiBaseUrl: API_BASE_URL,
-    });
-  }
-
   // Check if current user owns this project
   const isOwner =
     currentUser?.id && project.userId === parseInt(currentUser.id);
@@ -112,30 +102,11 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
 
   const handleDeleteConfirm = async () => {
     try {
-      console.log("Attempting to delete project:", project.projectId);
       await deleteProject(project.projectId).unwrap();
-      showToast("Project deleted successfully! ✨", "success");
+      showToast("Project deleted successfully", "success");
       setDeleteDialogOpen(false);
-    } catch (error) {
-      console.error("Failed to delete project:", error);
-      const err = error as { status?: number; data?: unknown };
-      
-      if (err.status === 405) {
-        showToast(
-          "Delete feature not yet available. The backend needs to implement DELETE /api/Projects/{id}",
-          "error"
-        );
-      } else if (err.status === 404) {
-        showToast("Project not found. It may have already been deleted.", "warning");
-        setDeleteDialogOpen(false);
-      } else if (err.status === 401 || err.status === 403) {
-        showToast("You don't have permission to delete this project.", "error");
-      } else {
-        showToast(
-          `Failed to delete project (Error ${err.status || 'Unknown'}). Please try again.`,
-          "error"
-        );
-      }
+    } catch {
+      showToast("Failed to delete project. Please try again.", "error");
     }
   };
 

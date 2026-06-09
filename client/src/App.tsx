@@ -21,7 +21,6 @@ import Saved from "./pages/Saved";
 import Profile from "./pages/Profile";
 import IdeaDetail from "./pages/IdeaDetail";
 import ProjectsFeed from "./pages/ProjectsFeed";
-import Debug from "./pages/Debug";
 import UserProfile from "./pages/UserProfile";
 import UserSearchPage from "./pages/UserSearch";
 
@@ -67,7 +66,6 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/ideas" element={<IdeasList />} />
               <Route path="/explore" element={<ProjectsFeed />} />
-              <Route path="/debug" element={<Debug />} />
               <Route path="/saved" element={<Saved />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/ideas/:id" element={<IdeaDetail />} />

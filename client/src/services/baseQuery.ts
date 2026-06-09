@@ -36,32 +36,14 @@ export const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBa
 ) => {
   const result = await rawBase(args, api, extraOptions);
   if (result.error) {
-    try {
-      const req = typeof args === "string" ? { url: args, method: "GET" } : args;
-      const url = req.url ?? "<unknown-url>";
-      const method = (req as FetchArgs).method ?? "GET";
-      const status = result.error.status ?? "<no-status>";
-      const dataSnippet = typeof result.error.data === "string"
-        ? result.error.data.slice(0, 200)
-        : JSON.stringify(result.error.data)?.slice(0, 200);
-      console.debug(`[API ERROR] ${method} ${url} -> ${status}`, dataSnippet);
-    } catch (e) {
-      console.debug("[API ERROR] failed to log", e);
-    }
     // If the backend returns 401, automatically sign the user out to avoid stale-token loops
-    try {
-      const statusCode = (result.error as FetchBaseQueryError)?.status;
-      if (statusCode === 401) {
-        try {
-          api.dispatch(signOut());
-          console.debug("[API] 401 received - dispatched signOut");
-        } catch (e) {
-          console.debug("[API] failed to dispatch signOut", e);
-        }
+    const statusCode = (result.error as FetchBaseQueryError)?.status;
+    if (statusCode === 401) {
+      try {
+        api.dispatch(signOut());
+      } catch {
+        // ignore dispatch errors
       }
-    } catch (e) {
-      // swallow any logging/dispatch errors but log to console for visibility
-      console.debug('[API] ignored error while handling response', e);
     }
   }
   return result;

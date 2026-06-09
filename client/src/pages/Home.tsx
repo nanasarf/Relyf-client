@@ -8,12 +8,23 @@ import {
   Stack,
   Avatar,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import PersonIcon from "@mui/icons-material/Person";
+import EditIcon from "@mui/icons-material/Edit";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGetUserFollowingQuery } from "../services/usersApi";
+import {
+  useGetUserFollowingQuery,
+  useGetUserProfileQuery,
+  useUpdateUserProfileMutation,
+} from "../services/usersApi";
 import { useGetFeedProjectsQuery } from "../services/projectsApi";
 
 export default function Home() {
@@ -49,6 +60,36 @@ export default function Home() {
       : API_BASE_URL;
     const path = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
     return `${baseUrl}${path}`;
+  };
+
+  // Edit Profile modal state
+  const [editOpen, setEditOpen] = useState(false);
+  const { data: userProfile } = useGetUserProfileQuery(currentUserId || "", {
+    skip: !currentUserId,
+  });
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [updateProfile, { isLoading: isUpdating }] =
+    useUpdateUserProfileMutation();
+  // Open modal and initialize form
+  const handleEditOpen = () => {
+    setDisplayName(userProfile?.displayName || "");
+    setBio(userProfile?.bio || "");
+    setAvatarUrl(userProfile?.avatarUrl || "");
+    setEditOpen(true);
+  };
+  // Save profile changes
+  const handleSave = async () => {
+    await updateProfile({
+      id: currentUserId,
+      profile: {
+        displayName,
+        bio,
+        avatarUrl,
+      },
+    });
+    setEditOpen(false);
   };
 
   return (
@@ -103,6 +144,16 @@ export default function Home() {
                 >
                   Your Feed
                 </Typography>
+                {currentUserId && (
+                  <Button
+                    variant="text"
+                    startIcon={<EditIcon />}
+                    sx={{ ml: 2, color: "white", fontWeight: 700 }}
+                    onClick={handleEditOpen}
+                  >
+                    Edit Profile
+                  </Button>
+                )}
               </Stack>
               <Typography
                 variant="h6"
@@ -125,29 +176,6 @@ export default function Home() {
                 spacing={2}
                 sx={{ justifyContent: { xs: "center", md: "flex-start" } }}
               >
-                <Button
-                  variant="contained"
-                  size="large"
-                  onClick={() => navigate("/ideas")}
-                  startIcon={<AutoAwesomeIcon />}
-                  sx={{
-                    bgcolor: "white",
-                    color: "primary.main",
-                    textTransform: "none",
-                    fontWeight: 700,
-                    px: 4,
-                    py: 1.5,
-                    boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.95)",
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
-                    },
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  Generate Ideas
-                </Button>
                 {(!following || following.length === 0) && (
                   <Button
                     variant="outlined"
@@ -458,6 +486,47 @@ export default function Home() {
           </>
         )}
       </Box>
+      {/* Edit Profile Modal */}
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
+        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Display Name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              fullWidth
+              multiline
+              minRows={2}
+            />
+            <TextField
+              label="Profile Image URL"
+              value={avatarUrl}
+              onChange={(e) => setAvatarUrl(e.target.value)}
+              fullWidth
+            />
+            {/* For image upload, you can add a file input and handle upload logic */}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOpen(false)} disabled={isUpdating}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            disabled={isUpdating}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

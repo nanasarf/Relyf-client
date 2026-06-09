@@ -166,31 +166,37 @@ export default function Sidebar() {
           <ListItemButton
             component={RouterLink}
             to="/ideas"
-            sx={(t) => ({
-              borderRadius: 3,
-              py: 1.5,
-              background: t.custom?.gradients?.accent,
+            sx={{
+              borderRadius: 4,
+              py: 2,
+              px: 2.5,
+              background: "linear-gradient(135deg, #43A047 0%, #FF9800 100%)",
               color: "white",
-              boxShadow: "0 4px 12px rgba(255, 167, 38, 0.3)",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              boxShadow: "0 6px 18px rgba(67, 160, 71, 0.15)",
+              border: "2px solid #66BB6A",
+              fontWeight: 700,
+              letterSpacing: 0.5,
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
               "&:hover": {
-                background: t.custom?.gradients?.accent,
-                transform: "translateY(-2px)",
-                boxShadow: "0 6px 20px rgba(255, 167, 38, 0.4)",
+                background: "linear-gradient(135deg, #66BB6A 0%, #FFB74D 100%)",
+                transform: "scale(1.04)",
+                boxShadow: "0 10px 24px rgba(255, 152, 0, 0.18)",
               },
               "&:active": {
-                transform: "translateY(0px)",
+                transform: "scale(1)",
               },
-            })}
+            }}
           >
-            <ListItemIcon sx={{ color: "white", minWidth: 40 }}>
-              <AddCircleOutlineIcon />
+            <ListItemIcon sx={{ color: "white", minWidth: 40, mr: 1 }}>
+              <AddCircleOutlineIcon sx={{ fontSize: 32 }} />
             </ListItemIcon>
             <ListItemText
               primary="Create"
               primaryTypographyProps={{
-                fontWeight: 600,
-                fontSize: "0.95rem",
+                fontWeight: 700,
+                fontSize: "1.05rem",
+                letterSpacing: 0.5,
+                sx: { textShadow: "0 1px 4px rgba(67,160,71,0.12)" },
               }}
             />
           </ListItemButton>

@@ -131,17 +131,10 @@ export default function PostProjectDialog({
         // aiIdeaId: aiIdeaId || null, // TODO: Uncomment after DB migration
       };
 
-      console.log("Creating project with data:", projectData);
       const result = await createProject(projectData).unwrap();
-      console.log("Project created:", result);
-      console.log(
-        "Project imageUrl from creation:",
-        result.imageUrl || "NO IMAGE URL"
-      );
 
       // Step 2: Add steps to the project
       if (stepsArray.length > 0) {
-        console.log("Adding steps to project:", result.projectId);
         await upsertSteps({
           id: result.projectId,
           steps: stepsArray,
@@ -152,19 +145,16 @@ export default function PostProjectDialog({
       if (selectedImage) {
         setUploadingImage(true);
         try {
-          console.log("Uploading image to project:", result.projectId);
-          const uploadResult = await uploadImage({
+          await uploadImage({
             file: selectedImage,
             ownerId: result.projectId,
             ownerType: "Project",
           }).unwrap();
-          console.log("Image uploaded successfully:", uploadResult);
           showToast("Image uploaded successfully!", "success");
-        } catch (imgError) {
-          console.error("Image upload failed:", imgError);
+        } catch {
           showToast(
             "Project posted but image upload failed. You can add images later.",
-            "warning"
+            "warning",
           );
         } finally {
           setUploadingImage(false);
@@ -179,7 +169,7 @@ export default function PostProjectDialog({
           { type: "Projects", id: "LIST" },
           { type: "Projects", id: "FEED" },
           { type: "Project", id: result.projectId },
-        ])
+        ]),
       );
 
       // Reset form
@@ -192,16 +182,11 @@ export default function PostProjectDialog({
 
       onClose();
     } catch (error) {
-      console.error("Failed to post project:", error);
-
       // Better error handling
       let errorMessage = "Failed to post project. Please try again.";
 
       if (error && typeof error === "object") {
         const err = error as Record<string, unknown>;
-
-        // Log the full error details for debugging
-        console.error("Full error details:", JSON.stringify(err, null, 2));
 
         // Check for SQL/Database errors
         if (
@@ -221,8 +206,6 @@ export default function PostProjectDialog({
             if (data.message && typeof data.message === "string") {
               errorMessage = `Server error: ${data.message}`;
             }
-            // Log the full error data for debugging
-            console.error("Server error data:", data);
           } else {
             errorMessage = "Server error occurred. Please try again later.";
           }
