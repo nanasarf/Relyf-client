@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RelyfClient")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+add1cf67ee8e910115a116fc88a6e85ceecbe1c0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6dd19658c116059a46f49f0583ca99da26128aa2")]
 [assembly: System.Reflection.AssemblyProductAttribute("RelyfClient")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RelyfClient")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
